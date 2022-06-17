@@ -1,0 +1,113 @@
+Select PLAYER_NAME AS 선수명, POSITION AS 포지션, BACK_NO AS 백넘버, HEIGHT AS 키 
+
+FROM PLAYER 
+
+WHERE HEIGHT BETWEEN 170 AND 180;
+
+ 
+
+Select PLAYER_NAME AS 선수명, POSITION AS 포지션, BACK_NO AS 백넘버, HEIGHT AS 키 
+
+FROM PLAYER 
+
+WHERE POSITION = NULL;
+
+ 
+
+---포지션 칼럼값이 NULL 인지를 판단하기 위해서는 IS NULL을 사용해 다음과 같이 작성 
+
+ 
+
+Select PLAYER_NAME AS 선수명, POSITION AS 포지션, TEAM_ID AS 팀ID 
+
+FROM PLAYER 
+
+WHERE POSITION IS NULL;
+
+ 
+
+---소속이 삼성블루윙즈인 조건과 키가 170CM이상인 조건을 연결해 소속이 삼성블루윙즈이고 키가 170CM 이상인
+
+---조건을 가진 선수들의 자료를 조회 하는 WHERE 절을 완성한다. 
+
+ 
+
+SELECT PLAYER_NAME AS 선수명, POSITION AS 포지션, BACK_NO AS 백넘버, HEIGHT AS 키 FROM PLAYER 
+
+WHERE TEAM_ID = 'K02' AND HEIGHT >=170;
+
+ 
+
+---소속이 삼성블루윙즈이거나 전남드래곤즈인 조건을 SQL 연산자로, '포지션이 미드필더 (MF)'인 조건을 비교 연산자로 
+
+---비교한 결과를 논리 연산자로 묶어서 처리한다. 
+
+SELECT TEAM_ID AS 팀ID , PLAYER_NAME AS 선수명 , POSITION AS 포지션 , BACK_NO AS 백넘버, HEIGHT AS 키 
+
+FROM PLAYER 
+
+WHERE TEAM_ID IN ('K02','K07') AND POSITION = 'MF';
+
+ 
+
+---요구 사항을 하나씩 하나씩 AND, OR 같은 논리 연산자를 사용해 DBMS가 이해할 수 있는 SQL 형식으로 질문을 변경한다. 
+
+---요구 사항을 순서대로 논리적인 조건으로 적용한다. 
+
+ 
+
+SELECT TEAM_ID AS 팀ID, PLAYER_NAME AS 선수명, POSITION AS 포지션,
+
+BACK_NO AS 백넘버, HEIGHT AS 키
+
+FROM PLAYER
+
+WHERE TEAM_ID = 'K02'
+
+OR TEAM_ID = 'K07'
+
+AND POSITION = 'MF'
+
+AND HEIGHT BETWEEN 170 AND 180;
+
+ 
+
+SELECT TEAM_ID AS 팀ID, PLAYER_NAME AS 선수명, POSITION AS 포지션,
+
+BACK_NO AS 백넘버, HEIGHT AS 키
+
+FROM PLAYER
+
+WHERE (TEAM_ID = 'K02'
+
+OR TEAM_ID = 'K07')
+
+AND POSITION = 'MF'
+
+AND HEIGHT BETWEEN 170 AND 180;
+
+ 
+
+Select PLAYER_NAME AS 선수명, POSITION AS 포지션, BACK_NO AS 백넘버, HEIGHT AS 키 
+
+FROM PLAYER 
+
+WHERE TEAM_ID = 'K02'
+
+AND POSITION <> 'MF'
+
+AND HEIGHT NOT BETWEEN 170 AND 180;
+
+ 
+
+---국적 칼럼의 경우 내국인들은 별도 데이터를 입력하지 않았다. 국적 칼럼이 NULL 이 아닌 선수와 
+
+---국적을 표시하라
+
+ 
+
+SELECT PLAYER_NAME AS 선수명, NATION AS 국적 
+
+FROM PLAYER 
+
+WHERE NATION IS NOT NULL;
