@@ -1,64 +1,97 @@
 1.
----일반적으로 집계함수는 GROUP BY 절과 같이 사용되지만 아래와 같이 테이블 전체가 
----하나의 그룹이 되는 경우에는 GROUP BY 절 없이 단독으로도 사용 가능하다. 
-SELECT COUNT(*) AS 전체행수, COUNT(HEIGHT)AS 키건수,
-MAX(HEIGHT)AS 최대키, MIN(HEIGHT)AS최소키, ROUND(AVG (HEIGHT),2)AS 평균키
-FROM PLAYER;
+SELECT ENAME 사원명, DEPTNO 부서번호
+    , case month when 1 then sal end M01, case month when 2 then sal end M02
+    , case month when 3 then sal end M03, case month when 4 then sal end M04
+    , case month when 5 then sal end M05, case month when 6 then sal end M06
+    , case month when 7 then sal end M07, case month when 8 then sal end M08
+    , case month when 9 then sal end M09, case month when 10 then sal end M10
+    , case month when 11 then sal end M11, case month when 12 then sal end M12
+FROM (SELECT ENAME, DEPTNO, EXTRACT (MONTH FROM HIREDATE) MONTH, SAL FROM EMP);
 
 2.
----포지션 별 최대키,최소키,평균키를 출력( 포지션 별이란 소그룹의 조건을 제시했기 떄문에 GROUP BY 절을 사용한다.).
-SELECT POSITION AS 포지션, COUNT(*) AS 인원수,COUNT (HEIGHT) AS 키대상 
-,MAX(HEIGHT)AS 최대키, MIN(HEIGHT)AS 최소키 
-,ROUND (AVG(HEIGHT),2)AS 평균키
-FROM PLAYER
-GROUP BY POSITION;
+SELECT DEPTNO 부서번호
+    , AVG (case month when 1 then sal end) M01, AVG (case month when 2 then sal end) M02
+    , AVG (case month when 3 then sal end) M03, AVG (case month when 4 then sal end) M04
+    , AVG (case month when 5 then sal end) M05, AVG (case month when 6 then sal end) M06
+    , AVG (case month when 7 then sal end) M07, AVG (case month when 8 then sal end) M08
+    , AVG (case month when 9 then sal end) M09, AVG (case month when 10 then sal end) M10
+    , AVG (case month when 11 then sal end) M11, AVG (case month when 12 then sal end) M12
+FROM (SELECT ENAME, DEPTNO, EXTRACT (MONTH FROM HIREDATE) MONTH, SAL FROM EMP)
+GROUP BY DEPTNO;
 
 3.
----K리그 선수들의 포지션 별 평균키를 구하는데, 평균키가 180CM이상인 정보만 표시하라는 요구사항이 접수됐으므로
----WHERE 절과 GROUP BY 절을 사용해 SQL문장을 작성한다.
+SELECT DEPTNO 부서번호
+    , AVG (decode (month, 1, sal)) M01, AVG (decode (month, 2, sal)) M02
+    , AVG (decode (month, 3, sal)) M03, AVG (decode (month, 4, sal)) M04
+    , AVG (decode (month, 5, sal)) M05, AVG (decode (month, 6, sal)) M06
+    , AVG (decode (month, 7, sal)) M07, AVG (decode (month, 8, sal)) M08
+    , AVG (decode (month, 9, sal)) M09, AVG (decode (month, 10, sal)) M10
+    , AVG (decode (month, 11, sal)) M11, AVG (decode (month, 12, sal)) M12
+FROM (SELECT ENAME, DEPTNO, EXTRACT (MONTH FROM HIREDATE) MONTH, SAL FROM EMP)
+GROUP BY DEPTNO;
 
-SELECT POSITION AS 포지션, ROUND(AVG(HEIGHT),2)AS평균키
-FROM PLAYER
-WHERE AVG(HEIGHT)>=180 
-GROUP BY POSITION;
 
 4.
---HAVING 조건절에는 GROUP BY 절에서 정의한 소그룹의 집계함수를 이용한 조건을 표시할 수 있으므로, HAVING절을 
----이용해 평균키가 180CM이상인 정보만 표시한다. 
-SELECT POSITION AS 포지션, ROUND(AVG(HEIGHT),2)AS평균키
+SELECT team_id
+        , NVL (sum (case position when 'FW' then 1 else 0 end), 0) FW
+        , NVL (sum (case position when 'MF' then 1 else 0 end), 0) MF
+        , NVL (sum (case position when 'DF' then 1 else 0 end), 0) DF
+        , NVL (sum (case position when 'GK' then 1 else 0 end), 0) GK
+        , COUNT(*) SUM
 FROM PLAYER
-GROUP BY POSITION
-HAVING AVG(HEIGHT)>=180;
-
-5.
----SQL 문장은 GROUP BY 절과 HAVING 절의 순서를 바꾸어서 수행한다. 
-SELECT POSITION AS 포지션 , AVG(HEIGHT)AS 평균키 
-FROM PLAYER 
-HAVING AVG (HEIGHT)>=180
-GROUP BY POSITION;
-
-6.
----K리그의 선수들 중 삼성블루윙즈(K02)와 FC서울(K09)의 인원수는 얼마인가란 요구사항이 접수됐다. WHERE 절과 
----GROUP BY 절을 사용한 SQL과 GROUP BY 절과 HAVING 절을 사용한 SQL을 모두 작성한다.
-SELECT TEAM_ID AS 팀ID, COUNT(*) AS 인원수 
-FROM PLAYER
-WHERE TEAM_ID IN('K09','K02')
 GROUP BY TEAM_ID;
 
-6_1
-SELECT TEAM_ID AS 팀ID, COUNT(*) AS 인원수 
+5.
+SELECT team_id
+        , NVL (SUM (case position when 'FW' then 1 end), 0) FW
+        , NVL (SUM (case position when 'MF' then 1 end), 0) MF
+        , NVL (SUM (case position when 'DF' then 1 end), 0) DF
+        , NVL (SUM (case position when 'GK' then 1 end), 0) GK
+        , COUNT(*) SUM
 FROM PLAYER
-GROUP BY TEAM_ID 
-HAVING TEAM_ID IN('K09', 'K02');
+GROUP BY TEAM_ID;
+
+6.
+SELECT team_id
+        , NVL (SUM (case when position = 'FW' then 1 end), 0) FW
+        , NVL (SUM (case when position = 'MF' then 1 end), 0) MF
+        , NVL (SUM (case when position = 'DF' then 1 end), 0) DF
+        , NVL (SUM (case when position = 'GK' then 1 end), 0) GK
+        , COUNT(*) SUM
+FROM PLAYER
+GROUP BY TEAM_ID;
+
 
 7.
----포지션별 평균키만 출력하는데, 최대키가 190CM이상인 선수를 갖고 있는 포지션의 정보만 출력한다. 
-SELECT POSITION AS 포지션, ROUND(AVG(HEIGHT),2) AS 평균키 
-FROM PLAYER 
-GROUP BY POSITION
-HAVING MAX (HEIGHT)>= 190;
+SELECT ROUND (AVG (CASE WHEN POSITION = 'MF' THEN HEIGHT END), 2) 미드필더
+      ,ROUND (AVG (CASE WHEN POSITION = 'FW' THEN HEIGHT END), 2) 포워드
+      ,ROUND (AVG (CASE WHEN POSITION = 'DF' THEN HEIGHT END), 2) 디펜더
+      ,ROUND (AVG (CASE WHEN POSITION = 'GK' THEN HEIGHT END), 2) 골키퍼
+      ,ROUND (AVG (HEIGHT), 2) 전체평균키
+FROM PLAYER;
 
-7_1
-SELECT ENAME AS 사원명, DEPTNO AS 부서번호 
-,EXTRACT (MONTH FROM HIREDATE) AS 입사월, SAL AS 급여 
-FROM EMP;
+8.
+SELECT player_name 선수명, position 포지션, back_no 백넘버
+FROM PLAYER
+ORDER BY player_name desc;
+
+9.
+SELECT player_name 선수명, position 포지션, back_no 백넘버
+FROM PLAYER
+ORDER BY 포지션 desc;
+
+10.
+SELECT player_name 선수명, position 포지션, back_no 백넘버, height 키
+FROM PLAYER
+WHERE HEIGHT IS NOT NULL
+ORDER BY HEIGHT DESC, back_no;
+
+
+11.
+SELECT player_name 선수명, position 포지션, back_no 백넘버
+FROM PLAYER
+WHERE back_no is not null
+ORDER BY 3 desc, 2, 1;
+
+
+
